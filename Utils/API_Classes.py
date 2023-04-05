@@ -52,8 +52,8 @@ class SuperJob(Main_API):
 
 test_hh = HeadHunter()
 #test_hh.get_requests()
-print(test_hh.get_info_from_json()['items'])
-vacansies = test_hh.get_info_from_json()['items']
-for i in vacansies:
-    print(i['name'])
+#print(test_hh.get_info_from_json()['items'])
+#vacansies = test_hh.get_info_from_json()['items']
+#for i in vacansies:
+#    print(i['name'])
 
