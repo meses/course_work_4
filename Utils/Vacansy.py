@@ -1,6 +1,6 @@
 """Для работы с классом вакансия"""
-from API_Classes import HeadHunter
-from utils import get_info_from_json, write_to_json
+#from API_Classes import HeadHunter
+#from utils import get_info_from_json, write_to_json
 
 class Vacancy:
     """Работа с экземплярами класса Вакансия"""
@@ -16,33 +16,33 @@ class Vacancy:
     @property
     def salary(self):
         if self.__salary is None:
-            return {'from': 0, 'to': 0, 'currency': 'RUR', 'gross': False}
+            return {'from': 'Не указана', 'to': 'Не указана', 'currency': 'RUR', 'gross': False}
+        #elif self.__salary['from'] == 0:
+        #    self.__salary['from'] == 'Не указана'
+        #elif self.__salary['to'] == 0:
+        #    self.__salary['to'] == 'Не указана'
         else:
             return self.__salary
 
+    @property
+    def salary_for_print(self):
+        if self.__salary['from'] == 0:
+            self.__salary['from'] = 'Не указана'
+        elif self.__salary['to'] == 0:
+            self.__salary['to'] = 'Не указана'
+        return self.__salary
 
+def top_vacancies(vacancies:list, top_n:int) -> list:
+    """Возвращает список топ N вакансий по зарплате"""
+    vacancies.sort(key=lambda x: x.salary['from'], reverse=True)
+    return vacancies[:top_n]
 
-
-vacancy = HeadHunter().get_requests('Руководитель')
-write_to_json(vacancy)
-vacansy = get_info_from_json()['items']
-#for i in vacansy:
-# print(i['name'], i['salary'], i['employer']['name'], i['url'])
-#object_counter = 0
-#for i in vacansy:
-#    str(object_counter) = Vacancy(vacansy['name'], vacansy['salary'], vacansy['employer']['name'], vacansy['url'])
-
-vac_objs = [Vacancy(i['name'], i['salary'], i['company_name'], i['url']) for i in vacansy] # Создаёт экземпляры класса Vacancy из всего списка вакансий, полученных из файла
-#vac_objs.sort(key=lambda x: x.salary['to'])
-for i in range(len(vac_objs)):
-    print(vac_objs[i])
-print(len(vac_objs))
-
-def sort_vacansy(vacansy_list):
-    #vacansy_list[0].company_name = sort_attribute
-    return vacansy_list.sort(key=lambda x: x.company_name)
-
-#company_name = vac_objs[0].company_name
-#print(sort_vacansy(vac_objs))
-
+def show_vacancies(vacancies:list):
+    """Выводит на экран список вакансий"""
+    for i in range(len(vacancies)):
+        print(f"url: {vacancies[i].url}, "
+              f"Название: {vacancies[i].vacancy_name}, "
+              f"Зарплата от: {vacancies[i].salary_for_print['from']}, "
+              f"Зарплата до: {vacancies[i].salary_for_print['to']}, "
+              f"Компания: {vacancies[i].company_name}")
 

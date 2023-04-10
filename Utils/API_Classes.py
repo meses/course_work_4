@@ -31,7 +31,7 @@ class HeadHunter(Main_API):
                 item_dict['url'] = j['url']
                 data['items'].append(item_dict)
         return data
-        #self.write_to_json('data.json', data)
+        #write_to_json('data.json', data)
 
 
 class SuperJob(Main_API):
