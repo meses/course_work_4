@@ -4,12 +4,8 @@ import os.path
 from Utils.API_Classes import HeadHunter, SuperJob
 
 
-#filename = 'data.json'
-
 def write_to_json(data: dict, filename: str):
     """Метод записи данных в json"""
-    #with open(filemname, 'a', encoding='UTF-8') as file:
-    #    json.dump(data, file, indent=4, ensure_ascii=False)
     with open(filename, 'r', encoding='UTF-8') as file:
         old_data = json.load(file)
     for i in data['items']:
@@ -28,9 +24,7 @@ def clear_json(filename: str):
         basic_data = {}
         basic_data = {'items': []}
         json.dump(basic_data, file, indent=4, ensure_ascii=False)
-        #file.write('')
 
-#clear_json('../Utils/data.json')
 
 def is_empty_file(filename: str) -> bool:
     """Проверяет существует ли файл с данными о вакансиях и пустой ли он"""

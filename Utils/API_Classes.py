@@ -17,22 +17,22 @@ class HeadHunter(Main_API):
     def get_requests(self, vacancy_name:str = 'Разработчик'):
         """Функция для получения вакансий с HH с заданным поисковым запосом"""
         data = {'items':[]}
-        for i in range(1, 2):
+        for i in range(1, 11):
             response = requests.get(self.url, params = {'User-Agent': 'Mozilla/5.0', # Должен быть агент
                                                         'text': f'{vacancy_name}', # Текст фильтра по вакансии
                                                         'area': '113', # Указание области (113 - Россия)
-                                                        'per_page': 2, # Кол-во вакансий на одной странице
+                                                        'per_page': 50, # Кол-во вакансий на одной странице
                                                         'page': str(i) # Индекс страницы
                                                         })
-            for j in response.json()['items']:
-                item_dict = {}
-                item_dict['name'] = j['name']
-                item_dict['salary'] = set_correct_salary_hh(j['salary'])
-                item_dict['company_name'] = j['employer']['name']
-                item_dict['url'] = j['alternate_url']
-                data['items'].append(item_dict)
+            if response.status_code == 200:
+                for j in response.json()['items']:
+                    item_dict = {}
+                    item_dict['name'] = j['name']
+                    item_dict['salary'] = set_correct_salary_hh(j['salary'])
+                    item_dict['company_name'] = j['employer']['name']
+                    item_dict['url'] = j['alternate_url']
+                    data['items'].append(item_dict)
         return data
-        #write_to_json('data.json', data)
 
 
 
@@ -41,18 +41,16 @@ class SuperJob(Main_API):
         self.url = f'https://api.superjob.ru/2.0/vacancies/'
 
     def get_requests(self, vacancy_name:str = 'Разработчик'):
+        """Функция для получения вакансий с HH с заданным поисковым запосом"""
         self.vacancy_name = vacancy_name
         headers = {
            'X-Api-App-Id': SUPERJOB_KEY,
         }
         data = {'items': []}
-        for i in range(1, 2):
-
-            response = requests.get(f'{self.url}?keyword={self.vacancy_name}&count=2&page={i}', headers=headers)
+        for i in range(1, 11):
+            response = requests.get(f'{self.url}?keyword={self.vacancy_name}&count=50&page={i}', headers=headers)
             if response.status_code == 200:
                 for item in response.json()['objects']:
-                    #data['items'].append(item)
-
                     item_dict = {}
                     item_dict['name'] = item['profession']
                     item_dict['salary'] = set_correct_salary_sj([item['payment_from'], item['payment_to'], item['currency']]) #get_correct_sj_salary(str(item['payment_from']), str(item['payment_to']))

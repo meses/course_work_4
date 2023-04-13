@@ -1,36 +1,34 @@
 """Для работы с классом вакансия"""
-#from API_Classes import HeadHunter
-#from utils import get_info_from_json, write_to_json
-
 class Vacancy:
     """Работа с экземплярами класса Вакансия"""
     def __init__(self, vacancy_name:str, salary:dict, company_name:str, url:str):
         self.vacancy_name = vacancy_name
-        self.__salary = salary
+        self.salary = salary
         self.company_name = company_name
         self.url = url
 
     def __str__(self):
         return f'{self.url}, {self.vacancy_name}, {self.salary}, {self.company_name}'
 
-    @property
-    def salary(self):
-        if self.__salary is None:
-            return {'from': 'Не указана', 'to': 'Не указана', 'currency': 'RUR', 'gross': False}
-        #elif self.__salary['from'] == 0:
-        #    self.__salary['from'] == 'Не указана'
-        #elif self.__salary['to'] == 0:
-        #    self.__salary['to'] == 'Не указана'
+    def __lt__(self, other):
+        if type(other) not in (Vacancy):
+            raise TypeError('Аргумент должен быть типом Vacancy')
         else:
-            return self.__salary
+            return self.salary['from'] < other.salary['from']
+
+    def __gt__(self, other):
+        if type(other) not in (Vacancy):
+            raise TypeError('Аргумент должен быть типом Vacancy')
+        else:
+            return self.salary['from'] < other.salary['from']
 
     @property
     def salary_for_print(self):
-        if self.__salary['from'] == 0:
-            self.__salary['from'] = 'Не указана'
-        elif self.__salary['to'] == 0:
-            self.__salary['to'] = 'Не указана'
-        return self.__salary
+        if self.salary['from'] == 0:
+            self.salary['from'] = 'Не указана'
+        elif self.salary['to'] == 0:
+            self.salary['to'] = 'Не указана'
+        return self.salary
 
 def top_vacancies(vacancies:list, top_n:int) -> list:
     """Возвращает список топ N вакансий по зарплате"""

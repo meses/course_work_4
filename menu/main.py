@@ -17,18 +17,22 @@ filtered_vacancies = get_filtered_vacancies(user_platform, filter_word, filename
 
 vac_objs = [Vacancy(i['name'], i['salary'], i['company_name'], i['url']) for i in filtered_vacancies] # Создаёт экземпляры класса Vacancy из всего списка вакансий, полученных из файла
 
-print(f'Всего вакансий нашлось: {len(vac_objs)}')
-is_top = input('Вывести топ вакансий по зарплате?\n1 - Да\n2 - Нет\n')
-if is_top == '1':
-    count_vacancies = int(input('Сколько вакансий показать? '))
-    top_vacancies = top_vacancies(vac_objs, count_vacancies)
-    show_vacancies(top_vacancies)
+if len(vac_objs) == 0:
+    print('По вашему запросу ничего не нашлось')
+else:
+    print(f'Всего вакансий нашлось: {len(vac_objs)}')
+    is_top = input('Вывести топ вакансий по зарплате?\n1 - Да\n2 - Нет\n')
+    if is_top == '1':
+        count_vacancies = int(input('Сколько вакансий показать? '))
+        top_vacancies = top_vacancies(vac_objs, count_vacancies)
+        show_vacancies(top_vacancies)
 
-elif is_top == '2':
-    is_all_vacancies = input(f'Тогда может вывести все найденные вакансии?\n1 - Да\n2 - Нет\n')
-    if is_all_vacancies == '1':
-        show_vacancies(vac_objs)
+    elif is_top == '2':
+        is_all_vacancies = input(f'Тогда может вывести все найденные вакансии?\n1 - Да\n2 - Нет\n')
+        if is_all_vacancies == '1':
+            show_vacancies(vac_objs)
 
+print('Спасибо, приходите ещё!')
 
 
 
