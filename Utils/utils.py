@@ -1,29 +1,21 @@
 
 import json
 import os.path
+from Utils.API_Classes import HeadHunter, SuperJob
+
 
 #filename = 'data.json'
-def set_correct_salary_hh(salary) -> dict:
-    """Приводит к единому виду зарплату с hh"""
-    if salary is None:
-        correct_salary = {"from": 0,
-                "to": 0,
-                "currency": "RUR",
-                "gross": False}
-    elif salary['from'] is None:
-        salary['from'] = 0
-        correct_salary = salary
-    elif salary['to'] is None:
-        salary['to'] = 0
-        correct_salary = salary
-    else:
-        correct_salary = salary
-    return correct_salary
 
-def write_to_json(data: dict, filemname: str):
+def write_to_json(data: dict, filename: str):
     """Метод записи данных в json"""
-    with open(filemname, 'a', encoding='UTF-8') as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
+    #with open(filemname, 'a', encoding='UTF-8') as file:
+    #    json.dump(data, file, indent=4, ensure_ascii=False)
+    with open(filename, 'r', encoding='UTF-8') as file:
+        old_data = json.load(file)
+    for i in data['items']:
+        old_data['items'].append(i)
+    with open(filename, 'w', encoding='UTF-8') as file:
+        json.dump(old_data, file, indent=4, ensure_ascii=False)
 
 def get_info_from_json(filename: str) -> dict:
     """Выводит информацию о вакансиях из файла"""
@@ -33,15 +25,20 @@ def get_info_from_json(filename: str) -> dict:
 
 def clear_json(filename: str):
     with open(filename, 'w') as file:
-        file.write('')
+        basic_data = {}
+        basic_data = {'items': []}
+        json.dump(basic_data, file, indent=4, ensure_ascii=False)
+        #file.write('')
+
+#clear_json('../Utils/data.json')
 
 def is_empty_file(filename: str) -> bool:
     """Проверяет существует ли файл с данными о вакансиях и пустой ли он"""
     if not os.path.isfile(filename):
         return True
-    elif os.path.isfile(filename) and os.path.getsize(filename) == 0:
+    elif os.path.isfile(filename) and os.path.getsize(filename) <= 21:
         return True
-    elif os.path.getsize(filename) != 0:
+    elif os.path.getsize(filename) > 21:
         return False
 
 def select_services():
@@ -68,6 +65,34 @@ def file_or_new_request(filename):
         choise_platform = select_services()
     return choise_platform
 
-def vacancy_filter(dataset, filter_word):
-    pass
-
+def get_filtered_vacancies(user_platform, filter_word, filename) -> list:
+    """Исходя из выбранной платформы, формируется список вакакнсий найденных по запросу пользователя"""
+    filtered_vacancies = []
+    if user_platform == '1':
+        vacancy = HeadHunter().get_requests(filter_word)
+        write_to_json(vacancy, filename)
+        vacansy = get_info_from_json(filename)['items']
+        for i in vacansy:
+            filtered_vacancies.append(i)
+    elif user_platform == '2':
+        vacancy = SuperJob().get_requests(filter_word)
+        write_to_json(vacancy, filename)
+        vacansy = get_info_from_json(filename)['items']
+        for i in vacansy:
+            filtered_vacancies.append(i)
+    elif user_platform == '3':
+        vacancy = HeadHunter().get_requests(filter_word)
+        write_to_json(vacancy, filename)
+        vacancy = SuperJob().get_requests(filter_word)
+        write_to_json(vacancy, filename)
+        vacansy = get_info_from_json(filename)['items']
+        for i in vacansy:
+            filtered_vacancies.append(i)
+    elif user_platform == '0':
+        vacansy = get_info_from_json(filename)['items']
+        for i in vacansy:
+            if filter_word.lower() in str(i['name']).lower():
+                filtered_vacancies.append(i)
+    else:
+        print('Что-то пошло не так')
+    return filtered_vacancies
