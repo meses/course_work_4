@@ -1,7 +1,7 @@
 
 from Utils.Vacansy import Vacancy, top_vacancies, show_vacancies
 #from Utils.API_Classes import HeadHunter, SuperJob
-from Utils.utils import file_or_new_request, clear_json, get_filtered_vacancies
+from Utils.utils import file_or_new_request, clear_json, get_filtered_vacancies, is_get_top, how_mutch_vacansies_show
 
 filename = '../Utils/data.json'
 
@@ -22,9 +22,9 @@ def main():
         vac_objs = [Vacancy(i['name'], i['salary'], i['company_name'], i['url']) for i in
                     filtered_vacancies]  # Создаёт экземпляры класса Vacancy из всего списка вакансий, полученных из файла
         print(f'Всего вакансий нашлось: {len(vac_objs)}')
-        is_top = input('Вывести топ вакансий по зарплате?\n1 - Да\n2 - Нет\n')
+        is_top = is_get_top()
         if is_top == '1':
-            count_vacancies = int(input('Сколько вакансий показать? '))
+            count_vacancies = how_mutch_vacansies_show()
             top = top_vacancies(vac_objs, count_vacancies)
             show_vacancies(top)
 

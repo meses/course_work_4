@@ -90,3 +90,18 @@ def get_filtered_vacancies(user_platform, filter_word, filename) -> list:
     else:
         print('Что-то пошло не так')
     return filtered_vacancies
+
+def is_get_top():
+    """Валидация введённого значения для вывода топа вакансий"""
+    is_top = ''
+    while is_top not in ['1', '2']:
+        is_top = input('Вывести топ вакансий по зарплате?\n1 - Да\n2 - Нет\n')
+    return is_top
+
+def how_mutch_vacansies_show():
+    """Валидация введённого значения для количества вакансий"""
+    count_vacancies = ''
+    while count_vacancies.isdigit() == False:
+        count_vacancies = input('Сколько вакансий показать? ')
+    return int(count_vacancies)
+
