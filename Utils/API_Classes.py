@@ -1,7 +1,5 @@
 """Работа с API"""
 import requests
-import json
-#from Utils.utils import set_correct_salary_hh, set_correct_salary_sj
 
 SUPERJOB_KEY = 'v3.r.137479068.1515f066f0bc16a3615c4a0f679c0d342111cfa3.f4d6e1bdbd401e9c88651e580f6517bef79b15f3'
 
@@ -13,6 +11,15 @@ class HeadHunter(Main_API):
     def __init__(self):
         self.url = f'https://api.hh.ru/vacancies'
 
+    @staticmethod
+    def data_formating_hh(item):
+        """Форматирование данных, полученных по запросу к HeadHunter"""
+        item_dict = {}
+        item_dict['name'] = item['name']
+        item_dict['salary'] = set_correct_salary_hh(item['salary'])
+        item_dict['company_name'] = item['employer']['name']
+        item_dict['url'] = item['alternate_url']
+        return item_dict
 
     def get_requests(self, vacancy_name:str = 'Разработчик'):
         """Функция для получения вакансий с HH с заданным поисковым запосом"""
@@ -25,13 +32,8 @@ class HeadHunter(Main_API):
                                                         'page': str(i) # Индекс страницы
                                                         })
             if response.status_code == 200:
-                for j in response.json()['items']:
-                    item_dict = {}
-                    item_dict['name'] = j['name']
-                    item_dict['salary'] = set_correct_salary_hh(j['salary'])
-                    item_dict['company_name'] = j['employer']['name']
-                    item_dict['url'] = j['alternate_url']
-                    data['items'].append(item_dict)
+                for item in response.json()['items']:
+                    data['items'].append(self.data_formating_hh(item))
         return data
 
 
@@ -39,6 +41,16 @@ class HeadHunter(Main_API):
 class SuperJob(Main_API):
     def __init__(self):
         self.url = f'https://api.superjob.ru/2.0/vacancies/'
+
+    @staticmethod
+    def data_formating_sj(item):
+        """Форматирование данных, полученных по запросу к SuperJob"""
+        item_dict = {}
+        item_dict['name'] = item['profession']
+        item_dict['salary'] = set_correct_salary_sj([item['payment_from'], item['payment_to'], item['currency']])
+        item_dict['company_name'] = item['firm_name']
+        item_dict['url'] = item['link']
+        return item_dict
 
     def get_requests(self, vacancy_name:str = 'Разработчик'):
         """Функция для получения вакансий с HH с заданным поисковым запосом"""
@@ -51,13 +63,7 @@ class SuperJob(Main_API):
             response = requests.get(f'{self.url}?keyword={self.vacancy_name}&count=50&page={i}', headers=headers)
             if response.status_code == 200:
                 for item in response.json()['objects']:
-                    item_dict = {}
-                    item_dict['name'] = item['profession']
-                    item_dict['salary'] = set_correct_salary_sj([item['payment_from'], item['payment_to'], item['currency']]) #get_correct_sj_salary(str(item['payment_from']), str(item['payment_to']))
-                    item_dict['company_name'] = item['firm_name']
-                    item_dict['url'] = item['link']
-                    data['items'].append(item_dict)
-
+                    data['items'].append(self.data_formating_sj(item))
         return data
 
 def set_correct_salary_sj(salary_original) -> dict:
