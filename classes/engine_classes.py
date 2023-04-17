@@ -1,18 +1,38 @@
 """Работа с API"""
+from abc import ABC, abstractmethod
 import requests
+import os
 
-SUPERJOB_KEY = 'v3.r.137479068.1515f066f0bc16a3615c4a0f679c0d342111cfa3.f4d6e1bdbd401e9c88651e580f6517bef79b15f3'
+key = os.getenv("SUPERJOB_KEY")
 
-class Main_API:
-    pass
+class ABCEngine(ABC):
 
+    @abstractmethod
+    def __init__(self, url=''):
+        pass
 
-class HeadHunter(Main_API):
-    def __init__(self):
-        self.url = f'https://api.hh.ru/vacancies'
+    @abstractmethod
+    def get_requests(self, vacancy_name: str = ''):
+        pass
 
     @staticmethod
-    def data_formating_hh(item):
+    @abstractmethod
+    def data_formatting(item):
+        pass
+
+
+class HeadHunter(ABCEngine):
+
+    def __init__(self, url=f'https://api.hh.ru/vacancies'):
+        self.__url = url
+
+    @property
+    def url(self):
+        return self.__url
+
+
+    @staticmethod
+    def data_formatting(item):
         """Форматирование данных, полученных по запросу к HeadHunter"""
         item_dict = {}
         item_dict['name'] = item['name']
@@ -23,27 +43,33 @@ class HeadHunter(Main_API):
 
     def get_requests(self, vacancy_name:str = 'Разработчик'):
         """Функция для получения вакансий с HH с заданным поисковым запосом"""
+        self.vacancy_name = vacancy_name
         data = {'items':[]}
         for i in range(1, 11):
             response = requests.get(self.url, params = {'User-Agent': 'Mozilla/5.0', # Должен быть агент
-                                                        'text': f'{vacancy_name}', # Текст фильтра по вакансии
+                                                        'text': f'{self.vacancy_name}', # Текст фильтра по вакансии
                                                         'area': '113', # Указание области (113 - Россия)
                                                         'per_page': 50, # Кол-во вакансий на одной странице
                                                         'page': str(i) # Индекс страницы
                                                         })
             if response.status_code == 200:
                 for item in response.json()['items']:
-                    data['items'].append(self.data_formating_hh(item))
+                    data['items'].append(self.data_formatting(item))
         return data
 
 
 
-class SuperJob(Main_API):
-    def __init__(self):
-        self.url = f'https://api.superjob.ru/2.0/vacancies/'
+class SuperJob(ABCEngine):
+
+    def __init__(self, url=f'https://api.superjob.ru/2.0/vacancies/'):
+        self.__url = url
+
+    @property
+    def url(self):
+        return self.__url
 
     @staticmethod
-    def data_formating_sj(item):
+    def data_formatting(item):
         """Форматирование данных, полученных по запросу к SuperJob"""
         item_dict = {}
         item_dict['name'] = item['profession']
@@ -56,52 +82,43 @@ class SuperJob(Main_API):
         """Функция для получения вакансий с HH с заданным поисковым запосом"""
         self.vacancy_name = vacancy_name
         headers = {
-           'X-Api-App-Id': SUPERJOB_KEY,
+           'X-Api-App-Id': key,
         }
         data = {'items': []}
         for i in range(1, 11):
             response = requests.get(f'{self.url}?keyword={self.vacancy_name}&count=50&page={i}', headers=headers)
             if response.status_code == 200:
                 for item in response.json()['objects']:
-                    data['items'].append(self.data_formating_sj(item))
+                    data['items'].append(self.data_formatting(item))
         return data
 
 def set_correct_salary_sj(salary_original) -> dict:
     """Приводит к единому виду зарплату с SuperJob"""
-    salary = {}
-    salary['from'] = salary_original[0]
-    salary['to'] = salary_original[1]
+    correct_salary = {}
+    correct_salary['from'] = salary_original[0]
+    correct_salary['to'] = salary_original[1]
     if salary_original[2] == 'rub':
-        salary['currency'] = "RUR"
+        correct_salary['currency'] = "RUR"
     else:
-        salary['currency'] = salary_original[2]
-    salary['gross'] = False
-    return salary
+        correct_salary['currency'] = salary_original[2]
+    correct_salary['gross'] = False
+    return correct_salary
 
 
-def set_correct_salary_hh(salary) -> dict:
+def set_correct_salary_hh(salary_original) -> dict:
     """Приводит к единому виду зарплату с hh"""
-    if salary is None:
+    if salary_original is None:
         correct_salary = {"from": 0,
                           "to": 0,
                           "currency": "RUR",
                           "gross": False}
-    elif salary['from'] is None:
-        salary['from'] = 0
-        correct_salary = salary
-    elif salary['to'] is None:
-        salary['to'] = 0
-        correct_salary = salary
+    elif salary_original['from'] is None:
+        salary_original['from'] = 0
+        correct_salary = salary_original
+    elif salary_original['to'] is None:
+        salary_original['to'] = 0
+        correct_salary = salary_original
     else:
-        correct_salary = salary
+        correct_salary = salary_original
     return correct_salary
-#test_hh = HeadHunter().get_requests()
-#test_hh.get_requests()
-#print(test_hh.get_info_from_json()['items'])
-#vacansies = test_hh.get_info_from_json()['items']
-#for i in vacansies:
-#    print(i['name'])
-#test_sj = SuperJob().get_requests()
-#for i in test_sj['items']:
-#    print(i)
 
