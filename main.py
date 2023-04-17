@@ -17,7 +17,7 @@ def main():
     filter_word = input(f'Введите название вакансии для поиска: ')
 
     if user_platform != '0':
-        JSONSaver().clear_json(filename)
+        JSONSaver().clear(filename)
 
     filtered_vacancies = JSONSaver().get_filtered_vacancies(user_platform, filter_word, filename)
 
@@ -37,6 +37,13 @@ def main():
             is_all_vacancies = input(f'Тогда может вывести все найденные вакансии?\n1 - Да\n2 - Нет\n')
             if is_all_vacancies == '1':
                 show_vacancies(vac_objs)
+
+
+    is_delete = input('Хотите удалить вакансии?\n1 - Да\n2 - Нет\n')
+    if is_delete == '1':
+        filter_word = input('Введите название вакансии для удаления: ')
+        deleted_vacancies = JSONSaver().delete_vacancies(filter_word, filename)
+        print(f'Удалено {deleted_vacancies} вакансий')
 
     print('\nСпасибо, приходите ещё!')
 
