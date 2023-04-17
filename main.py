@@ -1,9 +1,14 @@
+from classes.vacansy_class import Vacancy, top_vacancies, show_vacancies
+from utils.utils import file_or_new_request,  is_get_top, how_mutch_vacansies_show
+from classes.local_file_class import JSONSaver
+import os
 
-from Utils.Vacansy import Vacancy, top_vacancies, show_vacancies
-#from Utils.API_Classes import HeadHunter, SuperJob
-from Utils.utils import file_or_new_request, clear_json, get_filtered_vacancies, is_get_top, how_mutch_vacansies_show
+filename = 'utils/data.json'
+key = os.getenv("SUPERJOB_KEY")
 
-filename = '../Utils/data.json'
+if key is None:
+    print('Для работы нужен ключ SUPERJOB_KEY в переменных окружения')
+    quit()
 
 def main():
     print('Привет!')
@@ -12,9 +17,9 @@ def main():
     filter_word = input(f'Введите название вакансии для поиска: ')
 
     if user_platform != '0':
-        clear_json(filename)
+        JSONSaver().clear_json(filename)
 
-    filtered_vacancies = get_filtered_vacancies(user_platform, filter_word, filename)
+    filtered_vacancies = JSONSaver().get_filtered_vacancies(user_platform, filter_word, filename)
 
     if len(filtered_vacancies) == 0:
         print('По вашему запросу ничего не нашлось')
@@ -33,7 +38,7 @@ def main():
             if is_all_vacancies == '1':
                 show_vacancies(vac_objs)
 
-    print('Спасибо, приходите ещё!')
+    print('\nСпасибо, приходите ещё!')
 
 if __name__=="__main__":
     main()
